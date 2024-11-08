@@ -34,6 +34,8 @@ module React.Basic.Hooks
   , writeRef
   , useRef
   , UseRef
+  , RefNode
+  , useRefNode
   , useContext
   , UseContext
   , useEqCache
@@ -64,7 +66,7 @@ import Data.Bifunctor (rmap)
 import Data.Function.Uncurried (Fn2, mkFn2, runFn2)
 import Data.Maybe (Maybe)
 import Data.Newtype (class Newtype)
-import Data.Nullable (Nullable, toMaybe)
+import Data.Nullable (Nullable, null, toMaybe)
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (type (/\), (/\))
 import Effect (Effect)
@@ -75,6 +77,7 @@ import React.Basic (JSX, ReactComponent, ReactContext, Ref, consumer, contextCon
 import React.Basic.Hooks.Internal (Hook, HookApply, Pure, Render, bind, discard, coerceHook, unsafeHook, unsafeRenderEffect, type (&))
 import Unsafe.Coerce (unsafeCoerce)
 import Unsafe.Reference (unsafeRefEq)
+import Web.DOM (Node)
 
 --| A simple type alias to clean up component definitions.
 type Component props
@@ -335,6 +338,23 @@ useRef :: forall a. a -> Hook (UseRef a) (Ref a)
 useRef initialValue =
   unsafeHook do
     runEffectFn1 useRef_ initialValue
+
+-- | A type alias that allows to refer to a DOM node.
+type RefNode = Ref (Nullable Node)
+
+-- | A helper around `useRef` that creates a type to be used to refer to DOM nodes.
+-- | For example:
+-- |
+-- | ```purs
+-- |   …
+-- |   React.component "label" \_ -> React.do
+-- |     labelRef :: RefNode <- React.useRefNode
+-- |     pure $ R.label { ref: labelRef
+-- |                    , children: [R.text "hello"]}
+-- | ```
+-- |
+useRefNode :: Hook (UseRef Node) RefNode
+useRefNode = unsafeHook $ runEffectFn1 useRef_ null
 
 readRef :: forall a. Ref a -> Effect a
 readRef = runEffectFn1 readRef_

@@ -29,6 +29,7 @@ You can edit this file as you like.
   , "type-equality"
   , "unsafe-coerce"
   , "unsafe-reference"
+  , "web-dom"
   , "web-html"
   ]
 , packages = ./packages.dhall
